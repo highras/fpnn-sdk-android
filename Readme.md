@@ -11,16 +11,21 @@ android 4.4(api 19)
 
 ## Usage
 
-### For Maven Users:
+### For Maven Use:
 
-	<dependency>
-	  <groupId>org.highras</groupId>
-	  <artifactId>fpnn</artifactId>
-	  <version>2.0.0-RELEASE</version>
-	</dependency>
+~~~
+<dependency>
+	<groupId>com.github.highras</groupId>
+	<artifactId>fpnn-android</artifactId>
+	<version>2.0.0</version>
+	<type>pom</type>
+</dependency>
+~~~
 
-### For Gradle Users:
-implementation 'org.highras:fpnn:2.0.0'
+### For Gradle Use:
+~~~
+implementation 'com.github.highras:fpnn-android:2.0.0'
+~~~
 
 ### Import package
 
