@@ -11,21 +11,32 @@ android 4.4(api 19)
 
 ## Usage
 
-### For Maven Use:
+### 依赖集成
+1.  dependency in Gradle
+    - Add jcenter as your repository in project's build.gradle:
+	~~~
+	allprojects {
+			repositories {
+				jcenter()
+			}
+		}
+	~~~
+    - Add dependency in your module's build.gradle:
+	~~~
+	dependencies {
+		implementation 'com.github.highras:rtm-android:2.0.0'
+	}
+	~~~
+2.  dependency in Maven
+	~~~
+	<dependency>
+		<groupId>com.github.highras</groupId>
+		<artifactId>rtm-android</artifactId>
+		<version>2.0.0</version>
+		<type>pom</type>
+	</dependency>
+	~~~
 
-~~~
-<dependency>
-	<groupId>com.github.highras</groupId>
-	<artifactId>fpnn-android</artifactId>
-	<version>2.0.0</version>
-	<type>pom</type>
-</dependency>
-~~~
-
-### For Gradle Use:
-~~~
-implementation 'com.github.highras:fpnn-android:2.0.0'
-~~~
 
 ### Import package
 
