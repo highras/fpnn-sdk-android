@@ -228,6 +228,12 @@ public class TCPClient {
             TCPConnection.runCallback(callback, ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value());
     }
 
+    public int getConnectionId(){
+        synchronized (interLocker) {
+            return  connection.hashCode();
+        }
+    }
+
     public void sendQuest(Quest quest, FunctionalAnswerCallback callback) {
         sendQuest(quest, callback, questTimeout);
     }
