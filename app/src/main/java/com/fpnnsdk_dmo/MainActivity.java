@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     {
         byte[] derdata = null;
         try {
+            
             InputStream in = this.getAssets().open("secp256k1-public.der");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -41,19 +42,19 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        TCPClient nihao = new TCPClient("52.83.245.22",9876);
+        TCPClient nihao = new TCPClient("52.83.245.22",12345);
 
         //for fpnn encrypt
-        if (!nihao.enableEncryptorByDerData("secp256k1",derdata)){
+/*        if (!nihao.enableEncryptorByDerData("secp256k1",derdata)){
             ErrorRecorder recorder = (ErrorRecorder)ErrorRecorder.getInstance();
             recorder.println();
             return;
-        }
+        }*/
 
         //for connect callback
         nihao.setConnectedCallback(new ConnectionConnectedCallback() {
             @Override
-            public void connectResult(InetSocketAddress inetSocketAddress, boolean b) {
+            public void connectResult(InetSocketAddress inetSocketAddress, int id, boolean b) {
                 Log.i("login", "--- opened ----");
             }
         });
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         //for disconnect callback
         nihao.setWillCloseCallback(new ConnectionWillCloseCallback() {
             @Override
-            public void connectionWillClose(InetSocketAddress inetSocketAddress, boolean causedByError) {
+            public void connectionWillClose(InetSocketAddress inetSocketAddress,int id, boolean causedByError) {
                 Log.i("login","Connection closed by error? " + causedByError);
             }
         });

@@ -243,7 +243,7 @@ class TCPConnection {
 
         if (succeed) {
             if (connectedCallback != null)
-                connectedCallback.connectResult(peerAddress,true);
+                connectedCallback.connectResult(peerAddress, hashCode(),true);
 
             int interestEvents = SelectionKey.OP_READ;
             synchronized (this) {
@@ -255,7 +255,7 @@ class TCPConnection {
         }
         else {
             if (connectedCallback != null)
-                connectedCallback.connectResult(peerAddress,false);
+                connectedCallback.connectResult(peerAddress,hashCode(),false);
 
             synchronized (this) {
                 clearAllCallback(ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value());
@@ -289,13 +289,12 @@ class TCPConnection {
     }
 
     private void connectionWillClose() {
-
         boolean callCloseCallback;
         synchronized (this) {
             callCloseCallback = connectedCallbackCalled && connected;
         }
         if (callCloseCallback && connectionWillCloseCallback != null)
-            connectionWillCloseCallback.connectionWillClose(peerAddress, false);
+            connectionWillCloseCallback.connectionWillClose(peerAddress, hashCode(),false);
 
         try {
             channel.close();
@@ -492,8 +491,8 @@ class TCPConnection {
                         Answer answer;
                         try {
                             answer = (Answer) method.invoke(questProcessor, quest, peerAddress);
-                        } catch (ReflectiveOperationException e) {
 
+                        } catch (ReflectiveOperationException e) {
                             answer = buildErrorAnswerAndRecordError(quest,
                                     "Process quest(method: " + quest.method() + ") exception.",
                                     ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value(), "Quest method exception.", e);
@@ -513,12 +512,15 @@ class TCPConnection {
 
             Method method = questProcessorMethodsMap.get(quest.method());
             if (method == null) {
+//                ErrorRecorder.record("cant find method:" + quest.method());
                 try {
                     Class processorClass = Class.forName(questProcessorName);
-                    method = processorClass.getMethod(quest.method(), Quest.class, InetSocketAddress.class);
+                    method = processorClass.getDeclaredMethod(quest.method(), Quest.class, InetSocketAddress.class);
 
-                    if (method != null)
+                    if (method != null) {
+                        method.setAccessible(true);
                         questProcessorMethodsMap.put(quest.method(), method);
+                    }
                     else
                         throw new NoSuchMethodException();
 

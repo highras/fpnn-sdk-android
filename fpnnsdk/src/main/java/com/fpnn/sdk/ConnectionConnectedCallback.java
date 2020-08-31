@@ -7,5 +7,5 @@ import java.net.InetSocketAddress;
  */
 
 public interface ConnectionConnectedCallback {
-    void connectResult(InetSocketAddress peerAddress, boolean connected);
+    void connectResult(InetSocketAddress peerAddress, int connectionId, boolean connected);
 }

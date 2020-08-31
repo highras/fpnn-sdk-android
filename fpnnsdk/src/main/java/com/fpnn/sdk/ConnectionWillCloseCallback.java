@@ -7,5 +7,5 @@ import java.net.InetSocketAddress;
  */
 
 public interface ConnectionWillCloseCallback {
-    void connectionWillClose(InetSocketAddress peerAddress, boolean causedByError);
+    void connectionWillClose(InetSocketAddress peerAddress, int connectionId, boolean causedByError);
 }

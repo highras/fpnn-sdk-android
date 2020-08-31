@@ -190,7 +190,7 @@ public class TCPClient {
         sendQuest(quest, callback, questTimeout);
     }
 
-    public boolean sendQuest(Quest quest, AnswerCallback callback, int timeoutInSeconds) {
+    public void sendQuest(Quest quest, AnswerCallback callback, int timeoutInSeconds) {
         TCPConnection conn = null;
         boolean needConnect = false;
 
@@ -198,7 +198,7 @@ public class TCPClient {
             if (status == ClientStatus.Closed) {
                 if (!autoConnect) {
                     TCPConnection.runCallback(callback, ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value());
-                    return false;
+                    return;
                 }
                 else
                     needConnect = true;
@@ -226,7 +226,6 @@ public class TCPClient {
             conn.sendQuest(quest, callback, (timeoutInSeconds != 0) ? timeoutInSeconds : questTimeout);
         else
             TCPConnection.runCallback(callback, ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value());
-        return true;
     }
 
     public void sendQuest(Quest quest, FunctionalAnswerCallback callback) {
@@ -234,7 +233,7 @@ public class TCPClient {
     }
 
 
-    public boolean sendQuest(Quest quest, FunctionalAnswerCallback callback, int timeoutInSeconds) {
+    public void sendQuest(Quest quest, FunctionalAnswerCallback callback, int timeoutInSeconds) {
         AnswerCallback standardCallback = new AnswerCallback() {
             @Override
             public void onAnswer(Answer answer) {
@@ -246,7 +245,7 @@ public class TCPClient {
         };
 
         standardCallback.setFunctionalAnswerCallback(callback);
-        return sendQuest(quest, standardCallback, timeoutInSeconds);
+        sendQuest(quest, standardCallback, timeoutInSeconds);
     }
 
     //-- Async & Advanced Answer.
@@ -271,14 +270,14 @@ public class TCPClient {
             this.hashCode = hashCode;
         }
 
-        public void connectResult(InetSocketAddress peerAddress, boolean connected) {
+        public void connectResult(InetSocketAddress peerAddress, int connectionId, boolean connected) {
 
             if (!connected)
                 client.connectionConnectResult(false, hashCode);
 
             if (userCallback != null) {
                 try {
-                    userCallback.connectResult(peerAddress, connected);
+                    userCallback.connectResult(peerAddress, connectionId, connected);
                 } catch (Exception e) {
                     ErrorRecorder.record("Connection connected callback exception.", e);
                 }
@@ -301,11 +300,10 @@ public class TCPClient {
             this.hashCode = hashCode;
         }
 
-        public void connectionWillClose(InetSocketAddress peerAddress, boolean causedByError) {
-
+        public void connectionWillClose(InetSocketAddress peerAddress, int connectionId, boolean causedByError) {
             if (userCallback != null) {
                 try {
-                    userCallback.connectionWillClose(peerAddress, causedByError);
+                    userCallback.connectionWillClose(peerAddress, connectionId, causedByError);
                 } catch (Exception e) {
                     ErrorRecorder.record("Connection will close callback exception.", e);
                 }
