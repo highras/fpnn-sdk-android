@@ -11,32 +11,16 @@ android 4.4(api 19)
 
 ## Usage
 
-### 依赖集成
-1.  dependency in Gradle
-    - Add jcenter as your repository in project's build.gradle:
-	~~~
-	allprojects {
-			repositories {
-				jcenter()
-			}
-		}
-	~~~
-    - Add dependency in your module's build.gradle:
-	~~~
-	dependencies {
-		implementation 'com.github.highras:rtm-android:2.0.0'
-	}
-	~~~
-2.  dependency in Maven
-	~~~
-	<dependency>
-		<groupId>com.github.highras</groupId>
-		<artifactId>rtm-android</artifactId>
-		<version>2.0.0</version>
-		<type>pom</type>
-	</dependency>
-	~~~
+### For Maven Users:
 
+	<dependency>
+	  <groupId>com.github.highras</groupId>
+	  <artifactId>fpnn-android</artifactId>
+	  <version>2.0.1/version>
+	</dependency>
+
+### For Gradle Users:
+implementation 'com.github.highras:fpnn-android:2.0.1'
 
 ### Import package
 
@@ -107,12 +91,30 @@ Please refer: [API docs](API.md)
 
 ## Directory structure
 
-  * **\<fpnn-sdk-android\>/app**
+* **\<fpnn-sdk-android\>/src**
 
-	Example app for using this SDK.  
+	Maven Project.
+
+	+ **\<fpnn-sdk-android\>/src/main/java**
+
+		Codes of SDK.
+
+* **\<fpnn-sdk-android\>/app**
+
+	Example modules for using this SDK.  
+	All modules are normal module with IDEA, **NOT MAVEN PROJECT** and **NOT MAVEN MODULE**.  
 	Testing server is \<fpnn\>/core/test/serverTest. Refer: [Cpp codes of serverTest](https://github.com/highras/fpnn/blob/master/core/test/serverTest.cpp)
 
-	[more detail example ref](https://github.com/highras/fpnn-sdk-java/tree/master/examples)
+* **\<fpnn-sdk-java\>/performanceTests**
 
-* **\<fpnn-sdk-android\>/fpnnsdk**
-	* android moudle.Codes of SDK.
+	+ **\<fpnn-sdk-java\>/performanceTests/asyncStressClient**
+
+		Stress & Concurrent testing codes for SDK.  
+		This is normal module with IDEA, **NOT MAVEN PROJECT** and **NOT MAVEN MODULE**.  
+		Testing server is <fpnn>/core/test/serverTest. Refer: [Cpp codes of serverTest](https://github.com/highras/fpnn/blob/master/core/test/serverTest.cpp)
+
+	+ **\<fpnn-sdk-java\>/performanceTests/singleClientConcurrentTest**
+
+		Stability testing codes for SDK.  
+		This is normal module with IDEA, **NOT MAVEN PROJECT** and **NOT MAVEN MODULE**.  
+		Testing server is <fpnn>/core/test/serverTest. Refer: [Cpp codes of serverTest](https://github.com/highras/fpnn/blob/master/core/test/serverTest.cpp)
