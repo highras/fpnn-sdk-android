@@ -89,11 +89,13 @@ public class PackageReceiver implements PackageReceiverInterface {
         while (true) {
 
             try {
-                if (recvHeader)
+                if (recvHeader) {
                     receivedBytes = channel.read(headerRecvBuffer);
+                }
                 else
                     receivedBytes = channel.read(bodyRecvBuffer);
             } catch (IOException e) {
+                e.printStackTrace();
                 ErrorRecorder.record("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
                 result.setError(ErrorCode.FPNN_EC_CORE_RECV_ERROR.value());
                 return result;

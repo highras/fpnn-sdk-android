@@ -490,7 +490,8 @@ class TCPConnection {
                     public void run() {
                         Answer answer;
                         try {
-                            answer = (Answer) method.invoke(questProcessor, quest, peerAddress);
+                            Object oo = method.invoke(questProcessor, quest, peerAddress);
+                            answer = (Answer) oo;
 
                         } catch (ReflectiveOperationException e) {
                             answer = buildErrorAnswerAndRecordError(quest,

@@ -32,28 +32,31 @@ public class ErrorRecorder implements ErrorRecorderInterface {
     }
 
     //-----------------[ Properties ]-------------------
-    private List<String> cache;
+    private LinkedList<String> cache;
 
     public ErrorRecorder() {
         cache = new LinkedList<>();
     }
 
-    public void recordError(String message) {
+    private void addCache(String message){
+        if (cache.size() >= 200)
+            cache.removeLast();
         cache.add(message);
+    }
+    public void recordError(String message) {
+        addCache(message);
     }
     public void recordError(Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
-
-        cache.add(sw.toString());
+        addCache(sw.toString());
     }
     public void recordError(String message, Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
-
-        cache.add(message + " Error Stack: " + sw.toString());
+        addCache(message + " Error Stack: " + sw.toString());
     }
 
     public void clear() {

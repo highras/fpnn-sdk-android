@@ -1,10 +1,9 @@
 package com.fpnn.sdk.proto;
 
+import com.fpnn.sdk.ErrorRecorder;
+
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -80,7 +79,14 @@ public class Message {
     }
 
     public boolean wantBoolean(String key) {
-        Object obj = want(key);
+        Object obj = null;
+        try {
+            obj = want(key);
+        }
+        catch (NoSuchElementException e)
+        {
+            ErrorRecorder.record("wantBoolean NoSuchElementException " + key);
+        }
         return (obj == null)? false :(Boolean)obj;
     }
 
@@ -91,42 +97,62 @@ public class Message {
 
     public int wantInt(String key) {
         int value = -1;
-        Object obj = want(key);
-        if (obj instanceof Integer)
-            value = (Integer) obj;
-        else if (obj instanceof Long)
-            value = ((Long) obj).intValue();
-        else if (obj instanceof BigInteger)
-            value = ((BigInteger) obj).intValue();
-        else if (obj instanceof Short)
-            value = ((Short) obj).intValue();
-        else if (obj instanceof Byte)
-            value = ((Byte) obj).intValue();
-        else
-            value = Integer.valueOf(String.valueOf(obj));
+        try {
+            Object obj = want(key);
+            if (obj instanceof Integer)
+                value = (Integer) obj;
+            else if (obj instanceof Long)
+                value = ((Long) obj).intValue();
+            else if (obj instanceof BigInteger)
+                value = ((BigInteger) obj).intValue();
+            else if (obj instanceof Short)
+                value = ((Short) obj).intValue();
+            else if (obj instanceof Byte)
+                value = ((Byte) obj).intValue();
+            else
+                value = Integer.valueOf(String.valueOf(obj));
+        }
+        catch (NoSuchElementException e)
+        {
+            ErrorRecorder.record("wantInt NoSuchElementException " + key);
+        }
         return value;
     }
 
     public long wantLong(String key) {
-        Object obj = want(key);
         long value = -1;
-        if (obj instanceof Integer)
-            value = ((Integer) obj).longValue();
-        else if (obj instanceof Long)
-            value = (Long) obj;
-        else if (obj instanceof BigInteger)
-            value = ((BigInteger) obj).longValue();
-        else if (obj instanceof Short)
-            value = ((Short) obj).longValue();
-        else if (obj instanceof Byte)
-            value = ((Byte) obj).longValue();
-        else
-            value = Long.valueOf(String.valueOf(obj));
+        try {
+            Object obj = want(key);
+            if (obj instanceof Integer)
+                value = ((Integer) obj).longValue();
+            else if (obj instanceof Long)
+                value = (Long) obj;
+            else if (obj instanceof BigInteger)
+                value = ((BigInteger) obj).longValue();
+            else if (obj instanceof Short)
+                value = ((Short) obj).longValue();
+            else if (obj instanceof Byte)
+                value = ((Byte) obj).longValue();
+            else
+                value = Long.valueOf(String.valueOf(obj));
+        }
+        catch (NoSuchElementException e)
+        {
+            ErrorRecorder.record("wantLong NoSuchElementException " + key);
+        }
         return value;
     }
 
     public String wantString(String key) {
-        Object obj = want(key);
+        Object obj = null;
+        try {
+            obj = want(key);
+        }
+        catch (NoSuchElementException e)
+        {
+            ErrorRecorder.record("wantString NoSuchElementException " + key);
+            return null;
+        }
         return String.valueOf(obj);
     }
 

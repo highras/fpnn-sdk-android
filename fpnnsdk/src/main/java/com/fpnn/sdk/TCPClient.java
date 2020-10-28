@@ -167,6 +167,12 @@ public class TCPClient {
         }
     }
 
+    public int getConnectionId(){
+        synchronized (interLocker) {
+            return  connection.hashCode();
+        }
+    }
+
     public boolean enableEncryptorByDerFile(String curve, String keyFilePath) {
         return enableEncryptorByDerFile(curve, keyFilePath, false, false);
     }
@@ -226,12 +232,6 @@ public class TCPClient {
             conn.sendQuest(quest, callback, (timeoutInSeconds != 0) ? timeoutInSeconds : questTimeout);
         else
             TCPConnection.runCallback(callback, ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value());
-    }
-
-    public int getConnectionId(){
-        synchronized (interLocker) {
-            return  connection.hashCode();
-        }
     }
 
     public void sendQuest(Quest quest, FunctionalAnswerCallback callback) {

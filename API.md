@@ -153,27 +153,18 @@ Close current connection. Calling without available connection or client connect
 Set the connected evnet. Prototype:
 
 	public interface ConnectionConnectedCallback {
-	    void connectResult(InetSocketAddress peerAddress, boolean connected);
+	    void connectResult(InetSocketAddress peerAddress, int connectonId,boolean connected);
 	}
 
 #### Close Event
 
 	public void setWillCloseCallback(ConnectionWillCloseCallback cb);
-	public void setHasClosedCallback(ConnectionHasClosedCallback cb);
 
-Set the will close evnet & has closed event. Prototype:
+Set the close evnet. Prototype:
 
-+ Will closing callback:
-
-		public interface ConnectionWillCloseCallback {
-		    void connectionWillClose(InetSocketAddress peerAddress, boolean causedByError);
-		}
-
-+ Has closed callback:
-
-		public interface ConnectionHasClosedCallback {
-		    void connectionHasClosed(InetSocketAddress peerAddress, boolean causedByError);
-		}
+	public interface ConnectionWillCloseCallback {
+	    void connectionWillClose(InetSocketAddress peerAddress, int connectonId,boolean causedByError);
+	}
 
 #### Server Push
 
@@ -196,7 +187,7 @@ Set the will close evnet & has closed event. Prototype:
 
 ### Send Quest & Answer Methods
 
-#### Send Quest
+#### Sewnd Quest
 
 	//-- synchronous
 	public Answer sendQuest(Quest quest) throws InterruptedException;

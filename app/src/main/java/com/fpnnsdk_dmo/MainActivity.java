@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     {
         byte[] derdata = null;
         try {
-            
             InputStream in = this.getAssets().open("secp256k1-public.der");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -44,12 +43,12 @@ public class MainActivity extends AppCompatActivity {
 
         TCPClient nihao = new TCPClient("52.83.245.22",12345);
 
-        //for fpnn encrypt
-/*        if (!nihao.enableEncryptorByDerData("secp256k1",derdata)){
+/*        //for fpnn encrypt
+        if (!nihao.enableEncryptorByDerData("secp256k1",derdata)){
             ErrorRecorder recorder = (ErrorRecorder)ErrorRecorder.getInstance();
             recorder.println();
             return;
-        }*/
+        }
 
         //for connect callback
         nihao.setConnectedCallback(new ConnectionConnectedCallback() {
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             public void connectResult(InetSocketAddress inetSocketAddress, int id, boolean b) {
                 Log.i("login", "--- opened ----");
             }
-        });
+        });*/
 
         //for disconnect callback
         nihao.setWillCloseCallback(new ConnectionWillCloseCallback() {

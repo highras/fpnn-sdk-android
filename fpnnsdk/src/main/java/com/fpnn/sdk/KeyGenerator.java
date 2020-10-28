@@ -1,6 +1,6 @@
 package com.fpnn.sdk;
 
-import com.fpnn.sdk.ErrorRecorder;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +12,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
