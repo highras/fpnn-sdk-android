@@ -117,7 +117,7 @@ public class PackageReceivedResult {
                                 + payloadLength + ". mType: " + mtype);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 ErrorRecorder.record("Decoding package exception. package payload length: "
                         + payloadLength + ". Package type: " + packageType, e);
             }

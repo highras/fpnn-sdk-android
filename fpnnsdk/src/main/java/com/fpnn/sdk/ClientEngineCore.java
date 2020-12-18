@@ -1,5 +1,7 @@
 package com.fpnn.sdk;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
@@ -32,7 +34,7 @@ class ClientEngineCore extends Thread {
         try {
             selector = SelectorProvider.provider().openSelector();
         }
-        catch (IOException e) {
+        catch (Exception e) {
             ErrorRecorder.record("Create NIO selector failed.");
             selector = null;
             running = false;
@@ -83,7 +85,7 @@ class ClientEngineCore extends Thread {
                         peer = name + ':' + port;
                         channel.close();
                     }
-                    catch (IOException e2) {
+                    catch (Exception e2) {
                     }
 
                     ErrorRecorder.record("Register channel event ops " + ops + " failed. Peer: " + peer, e);
@@ -172,7 +174,7 @@ class ClientEngineCore extends Thread {
             try {
                 channel.finishConnect();
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 succeed = false;
                 closedChannels.add(channel);
 
@@ -187,7 +189,7 @@ class ClientEngineCore extends Thread {
                     peer = name + ':' + port;
                     channel.close();
                 }
-                catch (IOException e2) {
+                catch (Exception e2) {
                 }
 
                 ErrorRecorder.record("Finish connect action failed. Peer: " + peer, e);
@@ -278,8 +280,9 @@ class ClientEngineCore extends Thread {
                     keyCancelled = true;
 
                     TCPConnection conn = connectionMap.get(channel);
-                    if (conn != null)
+                    if (conn != null) {
                         invalidConnections.add(conn);
+                    }
 
                     connectionMap.remove(channel);
                     invalidChannels.add(channel);
@@ -292,8 +295,9 @@ class ClientEngineCore extends Thread {
                 channelEvents.remove(channel);
         }
 
-        for (TCPConnection connection : invalidConnections)
+        for (TCPConnection connection : invalidConnections) {
             connection.closedByCachedError();
+        }
 
         closedChannels.clear();
     }

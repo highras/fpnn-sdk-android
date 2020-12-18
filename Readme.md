@@ -16,11 +16,11 @@ android 4.4(api 19)
 	<dependency>
 	  <groupId>org.highras</groupId>
 	  <artifactId>fpnn</artifactId>
-	  <version>2.0.0-RELEASE</version>
+	  <version>2.0.6-RELEASE</version>
 	</dependency>
 
 ### For Gradle Users:
-implementation 'org.highras:fpnn:2.0.0'
+implementation 'org.highras:fpnn:2.0.6'
 
 ### Import package
 

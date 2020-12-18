@@ -1,5 +1,7 @@
 package com.fpnn.sdk;
 
+import android.util.Log;
+
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
 
@@ -349,7 +351,7 @@ class TCPConnection {
                     ErrorRecorder.record("Prepare sending buffer in package mode failed. encryptor.doFinal() return null.");
                     return false;
                 }
-            } catch (GeneralSecurityException e) {
+            } catch (Exception e) {
                 ErrorRecorder.record("Prepare sending buffer in package mode failed.", e);
                 return false;
             }
@@ -493,7 +495,7 @@ class TCPConnection {
                             Object oo = method.invoke(questProcessor, quest, peerAddress);
                             answer = (Answer) oo;
 
-                        } catch (ReflectiveOperationException e) {
+                        } catch (Exception e) {
                             answer = buildErrorAnswerAndRecordError(quest,
                                     "Process quest(method: " + quest.method() + ") exception.",
                                     ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value(), "Quest method exception.", e);
@@ -525,7 +527,7 @@ class TCPConnection {
                     else
                         throw new NoSuchMethodException();
 
-                } catch (ReflectiveOperationException e) {
+                } catch (Exception e) {
                     answer = buildErrorAnswerAndRecordError(quest,
                             "Cannot find method " + quest.method() + " in class " + questProcessorName,
                             ErrorCode.FPNN_EC_CORE_UNKNOWN_METHOD.value(), "Unknown method: " + quest.method(), e);

@@ -1,5 +1,7 @@
 package com.fpnn.sdk;
 
+import android.util.Log;
+
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

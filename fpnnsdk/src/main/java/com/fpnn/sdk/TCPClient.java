@@ -1,5 +1,7 @@
 package com.fpnn.sdk;
 
+import android.util.Log;
+
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
 
@@ -314,7 +316,6 @@ public class TCPClient {
                     ErrorRecorder.record("Connection will close callback exception.", e);
                 }
             }
-
             client.connectionDisconnected(hashCode);
         }
     }
@@ -410,7 +411,7 @@ public class TCPClient {
                 boolean connStatus;
                 try {
                     connStatus = connection.connect();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     connStatus = false;
                     ErrorRecorder.record("Connection open channel failed. Peer: " + peerAddress.toString(), e);
                 }

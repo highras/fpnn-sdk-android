@@ -83,10 +83,7 @@ public class EncryptedPackageReceiver implements PackageReceiverInterface {
                     receivedBytes = channel.read(lengthRecvBuffer);
                 else
                     receivedBytes = channel.read(packageRecvBuffer);
-            } catch (IOException e) {
-                ErrorRecorder.record("Receive error");
-
-                e.printStackTrace();
+            } catch (Exception e) {
                 ErrorRecorder.record("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
                 result.setError(ErrorCode.FPNN_EC_CORE_RECV_ERROR.value());
                 return result;
