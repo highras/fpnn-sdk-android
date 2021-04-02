@@ -3,24 +3,12 @@
 ## Depends
 
 * [msgpack-java](https://github.com/msgpack/msgpack-java)
-* [spongycastle](https://github.com/rtyley/spongycastle)
 
 ### Min api:
 
-android 4.4(api 19)
+android 4.1(api 16)
 
 ## Usage
-
-### For Maven Users:
-
-	<dependency>
-	  <groupId>org.highras</groupId>
-	  <artifactId>fpnn</artifactId>
-	  <version>2.0.6-RELEASE</version>
-	</dependency>
-
-### For Gradle Users:
-implementation 'org.highras:fpnn:2.0.6'
 
 ### Import package
 
