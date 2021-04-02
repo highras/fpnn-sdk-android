@@ -1,6 +1,6 @@
 package com.fpnn.sdk;
 
-import org.spongycastle.jce.provider.BouncyCastleProvider;
+//import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ class KeyGenerator {
         else
             keyLength = 128;
 
-        Security.insertProviderAt(new BouncyCastleProvider(), 1);
+//        Security.insertProviderAt(new BouncyCastleProvider(), 1);
 
         KeyFactory kf = KeyFactory.getInstance("EC");
         X509EncodedKeySpec pkSpec = new X509EncodedKeySpec(peerPublicKey);

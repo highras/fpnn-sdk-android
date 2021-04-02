@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -25,18 +25,23 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'org.msgpack:msgpack-core:0.8.17'
-    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
+//    implementation 'org.msgpack:msgpack-core:0.8.17'
+//    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
 }
 
-apply plugin: 'com.novoda.bintray-release'
-publish {
-    repoName = "fpnn-sdk-release"
-    userOrg = 'mayajun420'
-    groupId = 'com.github.highras'
-    artifactId = 'fpnn-android'
-    publishVersion = '2.0.3'
-    desc = 'android-fpnn-sdk'
-    website = 'https://github.com/highras/fpnn-sdk-android'
+
+task makeJar(type: Copy) {
+    //删除存在的
+    delete 'build/libs/mysdk.jar'
+    //设置拷贝的文件
+    from('build/intermediates/bundles/default/')
+    //打进jar包后的文件目录
+    into('build/libs/')
+    //将classes.jar放入build/libs/目录下
+    //include ,exclude参数来设置过滤
+    //（我们只关心classes.jar这个文件）
+    include('classes.jar')
+    //重命名
+    rename ('classes.jar', 'mysdk.jar')
 }
+makeJar.dependsOn(build)
