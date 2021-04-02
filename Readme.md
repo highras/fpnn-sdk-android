@@ -5,7 +5,7 @@
 * [msgpack-java](https://github.com/msgpack/msgpack-java)
 ### Min api:
 
-android 4.4(api 19)
+android 4.1(api 16)
 
 ## Usage
 
