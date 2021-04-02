@@ -35,7 +35,8 @@ class ClientEngineCore extends Thread {
             selector = SelectorProvider.provider().openSelector();
         }
         catch (Exception e) {
-            ErrorRecorder.record("Create NIO selector failed.");
+            Log.e("rtmsdk","Create NIO selector failed.");
+//            errorRecorder.recordError("Create NIO selector failed.");
             selector = null;
             running = false;
         }
@@ -87,8 +88,8 @@ class ClientEngineCore extends Thread {
                     }
                     catch (Exception e2) {
                     }
-
-                    ErrorRecorder.record("Register channel event ops " + ops + " failed. Peer: " + peer, e);
+                    Log.e("rtmsdk","Register channel event ops " + ops + " failed. Peer: " + peer, e);
+//                    errorRecorder.recordError("Register channel event ops " + ops + " failed. Peer: " + peer, e);
                 }
             }
 
@@ -191,8 +192,8 @@ class ClientEngineCore extends Thread {
                 }
                 catch (Exception e2) {
                 }
-
-                ErrorRecorder.record("Finish connect action failed. Peer: " + peer, e);
+                if (conn.errorRecorder != null)
+                    conn.errorRecorder.recordError("Finish connect action failed. Peer: " + peer, e);
             }
             conn.processConnectedEvent(succeed);
         }
@@ -307,7 +308,8 @@ class ClientEngineCore extends Thread {
 
         if (selector == null)
         {
-            ErrorRecorder.record("NIO selector is null.");
+//            errorRecorder.recordError("NIO selector is null.");
+            Log.e("rtmsdk","NIO selector is null.");
             return;
         }
 
@@ -325,7 +327,8 @@ class ClientEngineCore extends Thread {
             }
             catch (IOException e)
             {
-                ErrorRecorder.record("NIO select() exception. milliseconds is " + milliseconds + ".", e);
+//                errorRecorder.recordError("NIO select() exception. milliseconds is " + milliseconds + ".", e);
+                Log.e("rtmsdk","NIO select() exception. milliseconds is " + milliseconds + ".", e);
             }
 
             if (running) {
@@ -344,7 +347,8 @@ class ClientEngineCore extends Thread {
         }
         catch (IOException e)
         {
-            ErrorRecorder.record("Close selector exception.", e);
+//            errorRecorder.recordError("Close selector exception.", e);
+            Log.e("rtmsdk","Close selector exception.", e);
         }
 
         synchronized (connectionMap) {

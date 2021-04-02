@@ -11,7 +11,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,13 +47,28 @@ class TCPConnection {
     //-- IO Operations &Operators
     private LinkedList<ByteBuffer> sendQueue;
     private PackageReceiverInterface receiver;
+//    private PackageReceiver receiver;
     private int cachedErrorCode;
 
     private int questTimeout;
     private boolean keyExchanged;
     private ByteBuffer currentSendingBuffer;
     private KeyGenerator.EncryptionKit encryptionKit;
+    ErrorRecorder errorRecorder;
 
+    public void setErrorRecorder(ErrorRecorder recorder)
+    {
+        if (recorder == null){
+            return;
+        }
+        errorRecorder = recorder;
+        if (receiver instanceof PackageReceiver) {
+            ((PackageReceiver) receiver).errorRecorder = recorder;
+        }
+        else if (receiver instanceof EncryptedPackageReceiver) {
+            ((EncryptedPackageReceiver) receiver).errorRecorder = recorder;
+        }
+    }
     //-----------------[ Constructor Functions ]-------------------
 
     public TCPConnection(InetSocketAddress remote) {
@@ -301,7 +315,7 @@ class TCPConnection {
         try {
             channel.close();
         } catch (IOException e) {
-            ErrorRecorder.record("Close channel exception. Channel: " + peerAddress.toString(), e);
+            errorRecorder.recordError("Close channel exception. Channel: " + peerAddress.toString(), e);
         }
 
         if (callCloseCallback && connectionHasClosedCallback != null)
@@ -331,7 +345,7 @@ class TCPConnection {
         if (encryptionKit.streamMode) {
             byte[] ciphertext = encryptionKit.encryptor.update(currentSendingBuffer.array());
             if (ciphertext == null) {
-                ErrorRecorder.record("Prepare sending buffer in stream mode failed. encryptor.update() return null.");
+                errorRecorder.recordError("Prepare sending buffer in stream mode failed. encryptor.update() return null.");
                 return false;
             }
 
@@ -348,11 +362,11 @@ class TCPConnection {
             try {
                 ciphertext = encryptionKit.encryptor.doFinal(currentSendingBuffer.array());
                 if (ciphertext == null) {
-                    ErrorRecorder.record("Prepare sending buffer in package mode failed. encryptor.doFinal() return null.");
+                    errorRecorder.recordError("Prepare sending buffer in package mode failed. encryptor.doFinal() return null.");
                     return false;
                 }
             } catch (Exception e) {
-                ErrorRecorder.record("Prepare sending buffer in package mode failed.", e);
+                errorRecorder.recordError("Prepare sending buffer in package mode failed.", e);
                 return false;
             }
 
@@ -398,7 +412,7 @@ class TCPConnection {
                 channel.write(currentSendingBuffer);
             }
             catch (IOException e) {
-                ErrorRecorder.record("Send data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
+                errorRecorder.recordError("Send data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
                 cachedErrorCode = ErrorCode.FPNN_EC_CORE_SEND_ERROR.value();
                 return false;
             }
@@ -443,7 +457,7 @@ class TCPConnection {
                         runCallback(callback, answer);
                     }
                     else
-                        ErrorRecorder.record("Cannot find callback for answer. SeqNum is " + answer.getSeqNum());
+                        errorRecorder.recordError("Cannot find callback for answer. SeqNum is " + answer.getSeqNum());
                 }
             }
         }
@@ -473,9 +487,9 @@ class TCPConnection {
 
     private Answer buildErrorAnswerAndRecordError(Quest quest, String recordMessage, int errorCode, String ex, Exception e) {
         if (e == null)
-            ErrorRecorder.record(recordMessage);
+            errorRecorder.recordError(recordMessage);
         else
-            ErrorRecorder.record(recordMessage, e);
+            errorRecorder.recordError(recordMessage, e);
 
         Answer answer = null;
         if (quest.isTwoWay()) {
@@ -496,9 +510,14 @@ class TCPConnection {
                             answer = (Answer) oo;
 
                         } catch (Exception e) {
-                            answer = buildErrorAnswerAndRecordError(quest,
-                                    "Process quest(method: " + quest.method() + ") exception.",
-                                    ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value(), "Quest method exception.", e);
+                            if (e.getCause() != null){
+                             answer = buildErrorAnswerAndRecordError(quest, "Process quest(method: " + quest.method() + ") exception." +e.getCause().getMessage(),
+                                    ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value(), "Quest method exception." , e);
+                            }
+                            else {
+                                answer = buildErrorAnswerAndRecordError(quest, "Process quest(method: " + quest.method() + ") exception." +e.getMessage(),
+                                        ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value(), "Quest method exception." , e);
+                            }
                         }
 
                         if (answer != null)
@@ -515,7 +534,7 @@ class TCPConnection {
 
             Method method = questProcessorMethodsMap.get(quest.method());
             if (method == null) {
-//                ErrorRecorder.record("cant find method:" + quest.method());
+//                errorRecorder.recordError("cant find method:" + quest.method());
                 try {
                     Class processorClass = Class.forName(questProcessorName);
                     method = processorClass.getDeclaredMethod(quest.method(), Quest.class, InetSocketAddress.class);
@@ -581,7 +600,7 @@ class TCPConnection {
             buf = quest.rawData();
         } catch (IOException e) {
 
-            ErrorRecorder.record("Encoding quest exception. method: " + quest.method(), e);
+            errorRecorder.recordError("Encoding quest exception. method: " + quest.method(), e);
 
             if (callback != null)
                 runCallback(callback, ErrorCode.FPNN_EC_CORE_ENCODING.value());
@@ -592,7 +611,7 @@ class TCPConnection {
         if (timeoutInSeconds == 0)
             timeoutInSeconds = ClientEngine.getQuestTimeout();
 
-        if (callback != null) {
+        if (callback != null && quest.isTwoWay()) {
             callback.setSeqNum(quest.getSeqNum());
             callback.setTimeout(timeoutInSeconds);
             callback.setSentTime();
@@ -602,7 +621,7 @@ class TCPConnection {
 
             if (connectionClosed) {
                 if (!keyExchangedQuest)
-                    ErrorRecorder.record("Call sendQuest() after connection closed.");
+                    errorRecorder.recordError("Call sendQuest() after connection closed.");
 
                 if (callback != null)
                     runCallback(callback, ErrorCode.FPNN_EC_CORE_CONNECTION_CLOSED.value());
@@ -652,13 +671,13 @@ class TCPConnection {
         try {
             buf = answer.rawData();
         } catch (IOException e) {
-            ErrorRecorder.record("Encoding answer exception.", e);
+            errorRecorder.recordError("Encoding answer exception.", e);
             return;
         }
 
         synchronized (this) {
             if (connectionClosed) {
-                ErrorRecorder.record("Call sendAnswer() after connection closed.");
+                errorRecorder.recordError("Call sendAnswer() after connection closed.");
                 return;
             }
 

@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadFactory;
 
 public class ClientEngine {
 
-    public static String SDKVersion = "2.0.0";
+    public static String SDKVersion = "2.0.8";
 
     private static ClientEngineCore engineCore = new ClientEngineCore();
     private static boolean stopFuncCalled = false;
@@ -122,7 +122,8 @@ public class ClientEngine {
         }
         catch (InterruptedException e)
         {
-            ErrorRecorder.record("Join Engine Core thread exception.", e);
+//            errorRecorder.recordError("Join Engine Core thread exception.", e);
+            Log.e("rtmsdk","Join Engine Core thread exception.", e);
         }
     }
 }

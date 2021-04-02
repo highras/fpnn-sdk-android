@@ -1,6 +1,5 @@
 package com.fpnn.sdk;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -15,7 +14,7 @@ public class EncryptedPackageReceiver implements PackageReceiverInterface {
     private ByteBuffer packageRecvBuffer;
     private int packageLength;
     private int receivedLength;
-
+    ErrorRecorder errorRecorder;
     private KeyGenerator.EncryptionKit encryptKit;
 
     public EncryptedPackageReceiver(KeyGenerator.EncryptionKit kit) {
@@ -50,7 +49,7 @@ public class EncryptedPackageReceiver implements PackageReceiverInterface {
         try {
             plaintext = encryptKit.decryptor.doFinal(packageRecvBuffer.array());
         } catch (GeneralSecurityException e) {
-            ErrorRecorder.record("Decode received package in package mode failed. Connection will be closed. Channel: "
+            errorRecorder.recordError("Decode received package in package mode failed. Connection will be closed. Channel: "
                     + peerAddress.toString(), e);
             result.setError(ErrorCode.FPNN_EC_CORE_DECODING.value());
             return false;
@@ -84,7 +83,7 @@ public class EncryptedPackageReceiver implements PackageReceiverInterface {
                 else
                     receivedBytes = channel.read(packageRecvBuffer);
             } catch (Exception e) {
-                ErrorRecorder.record("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
+                errorRecorder.recordError("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
                 result.setError(ErrorCode.FPNN_EC_CORE_RECV_ERROR.value());
                 return result;
             }

@@ -18,6 +18,7 @@ public class PackageReceiver implements PackageReceiverInterface {
     private boolean recvHeader;
     private int bodyLength;
     private int receivedLength;
+    ErrorRecorder errorRecorder;
 
     public PackageReceiver () {
         prepareHeadBuffer();
@@ -41,13 +42,13 @@ public class PackageReceiver implements PackageReceiverInterface {
                 || (headerRecvBuffer.get(3) != 0x4e)) {
 
             result.setError(ErrorCode.FPNN_EC_PROTO_INVALID_PACKAGE.value());
-            ErrorRecorder.record("Received data magic code mismatched. Connection will be closed. Channel: " + peerAddress.toString());
+            errorRecorder.recordError("Received data magic code mismatched. Connection will be closed. Channel: " + peerAddress.toString());
             return false;
         }
 
         if ((headerRecvBuffer.get(5) & 0x80) == 0) {
             result.setError(ErrorCode.FPNN_EC_PROTO_PROTO_TYPE.value());
-            ErrorRecorder.record("Received data is not encoding by msgpack. Connection will be closed. Channel: " + peerAddress.toString());
+            errorRecorder.recordError("Received data is not encoding by msgpack. Connection will be closed. Channel: " + peerAddress.toString());
             return false;
         }
 
@@ -58,7 +59,7 @@ public class PackageReceiver implements PackageReceiverInterface {
 
         if (bodyLength < 1 || bodyLength > ClientEngine.getMaxPackageLength()) {
             result.setError(ErrorCode.FPNN_EC_PROTO_INVALID_PACKAGE.value());
-            ErrorRecorder.record("Received invalid package. package payload length: "
+            errorRecorder.recordError("Received invalid package. package payload length: "
                     + bodyLength + ". Connection will be closed. Channel: " + peerAddress.toString());
             return false;
         }
@@ -82,12 +83,11 @@ public class PackageReceiver implements PackageReceiverInterface {
     }
 
     public PackageReceivedResult receive(SocketChannel channel, InetSocketAddress peerAddress) {
-
         PackageReceivedResult result = new PackageReceivedResult();
+        result.errorRecorder = errorRecorder;
 
         int receivedBytes;
         while (true) {
-
             try {
                 if (recvHeader) {
                     receivedBytes = channel.read(headerRecvBuffer);
@@ -96,13 +96,12 @@ public class PackageReceiver implements PackageReceiverInterface {
                     receivedBytes = channel.read(bodyRecvBuffer);
             } catch (IOException e) {
                 e.printStackTrace();
-                ErrorRecorder.record("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
+                errorRecorder.recordError("Receive data error. Connection will be closed. Channel: " + peerAddress.toString(), e);
                 result.setError(ErrorCode.FPNN_EC_CORE_RECV_ERROR.value());
                 return result;
             }
 
             if (receivedBytes > 0) {
-
                 receivedLength += receivedBytes;
 
                 if (recvHeader) {

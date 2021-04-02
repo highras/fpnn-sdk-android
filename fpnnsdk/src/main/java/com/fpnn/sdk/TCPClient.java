@@ -1,11 +1,8 @@
 package com.fpnn.sdk;
 
-import android.util.Log;
-
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 
@@ -41,6 +38,11 @@ public class TCPClient {
     private ErrorRecorder errorRecorder;
 
 
+    public void setErrorRecorder(ErrorRecorder recorder)
+    {
+        errorRecorder = recorder;
+    }
+
     //-----------------[ Constructor Functions ]-------------------
 
     public TCPClient(String host, int port) {
@@ -63,14 +65,6 @@ public class TCPClient {
         questProcessorName = null;
 
 //        keyGenerator = null;
-    }
-
-    public void SetErrorRecorder(ErrorRecorder recorder)
-    {
-        synchronized (interLocker)
-        {
-            errorRecorder = recorder;
-        }
     }
 
     public static TCPClient create(String host, int port) {
@@ -154,7 +148,7 @@ public class TCPClient {
             return true;
         } catch (Exception e) {
             keyGenerator = null;
-            ErrorRecorder.record("Enable encrypt with curve " + curve + " and key in " + keyFilePath + " failed.", e);
+            errorRecorder.recordError("Enable encrypt with curve " + curve + " and key in " + keyFilePath + " failed.", e);
             return false;
         }
     }
@@ -164,7 +158,7 @@ public class TCPClient {
             keyGenerator = new KeyGenerator(curve, peerPublicKey, streamMode, reinforce);
             return true;
         } catch (Exception e) {
-            ErrorRecorder.record("Enable encrypt with curve " + curve + " and raw key data failed.", e);
+            errorRecorder.recordError("Enable encrypt with curve " + curve + " and raw key data failed.", e);
             return false;
         }
     }
@@ -219,7 +213,7 @@ public class TCPClient {
             try {
                 needConnect = !connect(false);
             } catch (InterruptedException e) {
-                ErrorRecorder.record("Reconnect for send quest action failed. Peer: " + peerAddress.toString(), e);
+                errorRecorder.recordError("Reconnect for send quest action failed. Peer: " + peerAddress.toString(), e);
             }
         }
 
@@ -287,7 +281,7 @@ public class TCPClient {
                 try {
                     userCallback.connectResult(peerAddress, connectionId, connected);
                 } catch (Exception e) {
-                    ErrorRecorder.record("Connection connected callback exception.", e);
+                    errorRecorder.recordError("Connection connected callback exception.", e);
                 }
             }
 
@@ -313,7 +307,7 @@ public class TCPClient {
                 try {
                     userCallback.connectionWillClose(peerAddress, connectionId, causedByError);
                 } catch (Exception e) {
-                    ErrorRecorder.record("Connection will close callback exception.", e);
+                    errorRecorder.recordError("Connection will close callback exception.", e);
                 }
             }
             client.connectionDisconnected(hashCode);
@@ -338,7 +332,7 @@ public class TCPClient {
                 try {
                     userCallback.connectionHasClosed(peerAddress, causedByError);
                 } catch (Exception e) {
-                    ErrorRecorder.record("Connection has closed callback exception.", e);
+                    errorRecorder.recordError("Connection has closed callback exception.", e);
                 }
             }
         }
@@ -387,7 +381,7 @@ public class TCPClient {
                 try {
                     encKit = keyGenerator.gen();
                 } catch (GeneralSecurityException e) {
-                    ErrorRecorder.record("Init encryption modules failed.", e);
+                    errorRecorder.recordError("Init encryption modules failed.", e);
                     return false;
                 }
             }
@@ -402,6 +396,7 @@ public class TCPClient {
                 if (encKit != null)
                     connection.setEncryptionKit(encKit);
 
+                connection.setErrorRecorder(errorRecorder);
                 connection.setQuestTimeout(questTimeout);
                 connection.setConnectedCallback(openCb);
                 connection.setWillCloseCallback(closingCb);
@@ -413,7 +408,7 @@ public class TCPClient {
                     connStatus = connection.connect();
                 } catch (Exception e) {
                     connStatus = false;
-                    ErrorRecorder.record("Connection open channel failed. Peer: " + peerAddress.toString(), e);
+                    errorRecorder.recordError("Connection open channel failed. Peer: " + peerAddress.toString(), e);
                 }
 
                 if (connStatus) {

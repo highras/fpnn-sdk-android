@@ -36,6 +36,7 @@ class KeyGenerator {
         public int keyLength;
     }
 
+    private ErrorRecorder errorRecorder;
     private boolean streamMode;
     private int keyLength;
 
@@ -52,7 +53,7 @@ class KeyGenerator {
         else
             keyLength = 128;
 
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+        Security.insertProviderAt(new BouncyCastleProvider(), 1);
 
         KeyFactory kf = KeyFactory.getInstance("EC");
         X509EncodedKeySpec pkSpec = new X509EncodedKeySpec(peerPublicKey);
@@ -172,7 +173,7 @@ class KeyGenerator {
             return cipher;
         }
         catch (GeneralSecurityException e) {
-            ErrorRecorder.record("Cannot encrypt with AES-CFB mode.", e);
+            errorRecorder.recordError("Cannot encrypt with AES-CFB mode.", e);
             throw e;
         }
     }
@@ -188,7 +189,7 @@ class KeyGenerator {
             return cipher;
         }
         catch (GeneralSecurityException e) {
-            ErrorRecorder.record("Cannot decrypt with AES-CFB mode.", e);
+            errorRecorder.recordError("Cannot decrypt with AES-CFB mode.", e);
             throw e;
         }
     }

@@ -4,7 +4,6 @@ import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.MessagePayloadUnpacker;
 import com.fpnn.sdk.proto.Quest;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
@@ -21,6 +20,7 @@ public class PackageReceivedResult {
     private LinkedList<ByteBuffer> caches;
     private LinkedList<Answer> answerList;
     private LinkedList<Quest> questList;
+    ErrorRecorder errorRecorder;
 
      PackageReceivedResult() {
         success = true;
@@ -103,7 +103,6 @@ public class PackageReceivedResult {
 
                     } else if (mtype == 0) {
                         packageType = "One Way Quest";
-
                         byte[] data = bodyBuffer.array();
                         String method = new String(data, 0, ss, Charset.forName("UTF-8"));
                         MessagePayloadUnpacker unpacker = new MessagePayloadUnpacker(data, ss, payloadLength);
@@ -113,12 +112,12 @@ public class PackageReceivedResult {
                         questList.add(quest);
 
                     } else {
-                        ErrorRecorder.record("Unsupported package type. package payload length: "
+                        errorRecorder.recordError("Unsupported package type. package payload length: "
                                 + payloadLength + ". mType: " + mtype);
                     }
                 }
             } catch (Exception e) {
-                ErrorRecorder.record("Decoding package exception. package payload length: "
+                errorRecorder.recordError("Decoding package exception. package payload length: "
                         + payloadLength + ". Package type: " + packageType, e);
             }
         }
